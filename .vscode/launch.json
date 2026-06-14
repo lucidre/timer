@@ -1,0 +1,36 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Timer",
+      "request": "launch",
+      "type": "dart",
+      "args": ["--verbose"]
+    },
+    {
+      "name": "Timer (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "args": ["--verbose"]
+    },
+    {
+      "name": "Timer (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "args": ["--verbose"]
+    },
+
+    {
+      "name": "Timer (Chrome - no CORS)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": ["--web-browser-flag", "--disable-web-security"]
+    }
+  ]
+}
