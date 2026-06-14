@@ -3,16 +3,19 @@ name: Build Flutter Windows
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-windows:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'   # ← change this
+          flutter-version: '3.41.3'
           channel: 'stable'
 
       - name: Install dependencies
