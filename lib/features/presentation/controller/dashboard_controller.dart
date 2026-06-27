@@ -1,12 +1,9 @@
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/data/data_sources/schedule_sync.dart';
-import 'package:timer/features/splash/data/repositorites/splash_repository_impl.dart';
-import 'package:timer/features/splash/domain/usecases/splash_service.dart';
-import 'package:timer/features/splash/models/schedule/schedule.dart';
+import 'package:timer/features/data/data_sources/schedule_sync.dart';
+import 'package:timer/features/data/repositorites/splash_repository_impl.dart';
+import 'package:timer/features/domain/usecases/splash_service.dart';
+import 'package:timer/features/models/schedule/schedule.dart';
 
-//TODO: EDITR ITEM WITHOUT IT BEING CURRENT.
-// ADD BUTTONS
-// DRAG AND REORDER.
 final _normalSpectrum = [
   primaryColor,
   secondaryColor,
@@ -37,6 +34,7 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
   final _warningRange = 0.0.obs;
   final _isLoading = true.obs;
   final _isRefreshing = false.obs;
+  final _shiftAll = true.obs;
   final _errorOccurred = false.obs;
   final _isScrolling = false.obs;
 
@@ -48,6 +46,7 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
   // Getters
 
   List<Color> get gradients => _gradients;
+  bool get shiftAll => _shiftAll.value;
   bool get isLoading => _isLoading.value;
   bool get errorOccurred => _errorOccurred.value;
   bool get isRefreshing => _isRefreshing.value;
@@ -84,6 +83,11 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
   // Setters
   set schedules(List<Schedule> value) => schedules.value = value;
   set isLoading(bool value) => _isLoading.value = value;
+  set shiftAll(bool value) {
+    _shiftAll.value = value;
+    AppPreferences.setShiftAll(value);
+  }
+
   set errorOccurred(bool value) => _errorOccurred.value = value;
   set isRefreshing(bool value) => _isRefreshing.value = value;
   set gradients(List<Color> value) => _gradients.value = value;
@@ -92,9 +96,16 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
   set remaining(Duration value) => _remaining.value = value;
   set isScrolling(bool value) => _isScrolling.value = value;
 
+  Future<void> startSchedule(Schedule schedule) async {
+    if (shiftAll) {
+      await resolveTimeDifferent(schedule);
+    }
+    final sched = schedules.firstWhereOrNull((s) => s.id == schedule.id);
+    await setCurrent(sched ?? schedule);
+  }
+
   Future<void> setCurrent(Schedule schedule) async {
     _current.value = schedule;
-
     startCountdown();
     await pushToTimer();
   }
@@ -103,7 +114,42 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     if (current == null) return;
     final indexOf = schedules.indexOf(current!);
     if (indexOf != -1 && indexOf != schedules.length - 1) {
-      await setCurrent(schedules[indexOf + 1]);
+      await startSchedule(schedules[indexOf + 1]);
+    }
+  }
+
+  Future<void> resolveTimeDifferent(Schedule schedule) async {
+    if (current == null) return;
+
+    final now = DateTime.now();
+    final currentEnd = current?.end ?? now;
+    final newStart = schedule.start ?? now;
+
+    final overflowTime = now.isAfter(currentEnd)
+        ? now.difference(currentEnd)
+        : Duration.zero;
+
+    if (overflowTime == Duration.zero) return;
+
+    final gapDifference = newStart.isAfter(currentEnd)
+        ? newStart.difference(currentEnd)
+        : Duration.zero;
+
+    if (gapDifference >= overflowTime) return;
+
+    final additionMs =
+        overflowTime.inMilliseconds - gapDifference.inMilliseconds;
+
+    final fromIndex = schedules.indexOf(schedule);
+    if (fromIndex == -1) return;
+
+    for (int i = fromIndex; i < schedules.length; i++) {
+      final block = schedules[i];
+      if (block.start == null || block.end == null) continue;
+      schedules[i] = block.copyWith(
+        start: block.start!.add(Duration(milliseconds: additionMs)),
+        end: block.end!.add(Duration(milliseconds: additionMs)),
+      );
     }
   }
 
@@ -111,16 +157,16 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     required bool isAddition,
     required Duration duration,
     required bool isShifting,
+    required Schedule schedule,
   }) async {
+    bool isCurrent = schedule == current;
     //TODO: APPLU PLUS ON A TIME THAT IS ALREADY 5 SECONDS IS NOT WORKING. SO REMOVE LIKE AN HOUR AND ADD AND IT WOUDL NOT WORK.
 
-    if (current == null) return;
-
-    final fromIndex = schedules.indexOf(current!);
+    final fromIndex = schedules.indexOf(schedule);
     if (fromIndex == -1) return;
 
-    final blockStart = current!.start;
-    final blockEnd = current!.end;
+    final blockStart = schedule.start;
+    final blockEnd = schedule.end;
     if (blockStart == null || blockEnd == null) return;
 
     final Duration resolved;
@@ -137,15 +183,20 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
           : duration;
     }
 
+    debugPrint(resolved.toString());
     final updatedEnd = isAddition
         ? blockEnd.add(resolved)
         : blockEnd.subtract(resolved);
 
-    schedules[fromIndex] = current!.copyWith(end: updatedEnd);
-    _current.value = schedules[fromIndex];
+    schedules[fromIndex] = schedule.copyWith(end: updatedEnd);
+    if (isCurrent) {
+      _current.value = schedules[fromIndex];
+    }
 
     if (!isShifting || resolved == .zero) {
-      await setCurrent(schedules[fromIndex]);
+      if (isCurrent) {
+        await setCurrent(schedules[fromIndex]);
+      }
       return;
     }
 
@@ -163,19 +214,19 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
       );
     }
 
-    await setCurrent(schedules[fromIndex]);
+    if (isCurrent) {
+      await setCurrent(schedules[fromIndex]);
+    }
   }
 
-  Future<bool?> onPrevious() async {
-    if (current == null) return null;
+  Future<void> onPrevious() async {
+    if (current == null) return;
 
     final indexOf = schedules.indexOf(current!);
     if (indexOf != -1 && indexOf - 1 <= 0) {
       final item = schedules[indexOf - 1];
-      if (isSchedulePast(item)) return true;
       setCurrent(item);
     }
-    return null;
   }
 
   @override
@@ -186,6 +237,8 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     refreshController = RefreshController(initialRefresh: false);
     refreshGradients(false, false);
     scrollController.addListener(onScroll);
+
+    shiftAll = AppPreferences.shiftAll;
   }
 
   @override
@@ -211,11 +264,11 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     if (blockStart == null || blockEnd == null) {
       throw DashboardControllerErrors.nullTime;
     }
-
+    final start = blockStart.isBefore(.now()) ? DateTime.now() : blockStart;
     await service.pushAndStart(
       host: 'http://${AppPreferences.deviceIp}',
-      startDate: blockStart.isBefore(.now()) ? .now() : blockStart,
-      endDate: blockEnd,
+      startDate: start,
+      endDate: blockEnd.isBefore(start) ? .now().add(2.seconds) : blockEnd,
     );
   }
 
@@ -265,7 +318,7 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     final buffer = current!.buffer ?? .zero;
     final bufferIncrease = current!.bufferIncrease ?? false;
 
-    final DateTime finalDeadline = bufferIncrease
+    final finalDeadline = bufferIncrease
         ? end.add(buffer)
         : end.subtract(buffer);
 
@@ -299,6 +352,7 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     isRefreshing = false;
   }
 
+  @override
   Future<void> getData() async {
     isLoading = true;
     errorOccurred = false;
@@ -325,14 +379,18 @@ class DashboardController extends GetxController with ScheduleSyncMixin {
     syncInsert(schedule);
   }
 
+  void deleteSchedule(Schedule? schedule) {
+    if (schedule == null) return;
+    schedules.remove(schedule);
+    schedules.sort((a, b) => (a.start ?? .now()).compareTo(b.start ?? .now()));
+    syncDelete(schedule.id ?? -1);
+  }
+
   Future<void> modifySchedule(Schedule modified) async {
     final index = schedules.indexWhere((s) => s.id == modified.id);
     if (index == -1) return;
-
     schedules[index] = modified;
-
     schedules.sort((a, b) => (a.start ?? .now()).compareTo(b.start ?? .now()));
-
     if (modified.id == current?.id) {
       await setCurrent(modified);
       syncModify(modified);

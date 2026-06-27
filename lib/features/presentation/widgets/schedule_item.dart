@@ -1,5 +1,5 @@
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/models/schedule/schedule.dart';
+import 'package:timer/features/models/schedule/schedule.dart';
 
 class ScheduleItem extends StatefulWidget {
   final Schedule schedule;
@@ -189,11 +189,6 @@ class _ScheduleItemState extends State<ScheduleItem> {
   }
 }
 
-// ─────────────────────────────────────────────
-// DESKTOP SCHEDULE ROW
-// Wraps ScheduleItem but adds inline Edit / Start
-// action buttons on hover — desktop-friendly UX.
-// ─────────────────────────────────────────────
 class DesktopScheduleRow extends StatefulWidget {
   final Schedule schedule;
   final bool isActive;
@@ -201,6 +196,8 @@ class DesktopScheduleRow extends StatefulWidget {
   final bool shimmer;
   final VoidCallback onEdit;
   final VoidCallback onLoad;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
 
   const DesktopScheduleRow({
     super.key,
@@ -210,6 +207,8 @@ class DesktopScheduleRow extends StatefulWidget {
     this.shimmer = false,
     required this.onEdit,
     required this.onLoad,
+    required this.onAdd,
+    required this.onRemove,
   });
 
   @override
@@ -307,10 +306,22 @@ class _DesktopScheduleRowState extends State<DesktopScheduleRow> {
                       opacity: (_hovered || widget.isActive) ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 150),
                       child: SizedBox(
-                        width: 80,
+                        width: 200,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            _buildControlButton(
+                              context,
+                              '-xm',
+                              onPressed: () => widget.onRemove(),
+                            ),
+                            horizontalSpacer6,
+                            _buildControlButton(
+                              context,
+                              '+xm',
+                              onPressed: () => widget.onAdd(),
+                            ),
+                            horizontalSpacer6,
                             _ActionIconBtn(
                               icon: Icons.edit_rounded,
                               tooltip: 'Edit',
@@ -335,6 +346,21 @@ class _DesktopScheduleRowState extends State<DesktopScheduleRow> {
                   ],
                 ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildControlButton(
+    BuildContext context,
+    String text, {
+    VoidCallback? onPressed,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: .circular(space6),
+      child: Padding(
+        padding: const .all(space6),
+        child: Text(text, style: context.font600S14),
       ),
     );
   }

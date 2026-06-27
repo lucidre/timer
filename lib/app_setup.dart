@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/data/data_sources/schedule_sync.dart';
+import 'package:timer/features/data/data_sources/schedule_sync.dart';
 
 Future<void> initializeApplication() async {
   await _initializeWindow();

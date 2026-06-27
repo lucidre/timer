@@ -1,4 +1,5 @@
-import 'package:timer/features/splash/models/schedule/schedules.dart';
+import 'package:timer/common_libs.dart';
+import 'package:timer/features/models/schedule/schedules.dart';
 import 'package:timer/shared/api/network_methods.dart';
 import 'package:timer/shared/api/network_response.dart';
 
@@ -49,20 +50,26 @@ class SplashDataSource {
     required DateTime endDate,
     int warningPercent = 10,
   }) async {
-    final duration = endDate.difference(startDate);
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
+    try {
+      final duration = endDate.difference(startDate);
+      final hours = duration.inHours;
+      final minutes = duration.inMinutes.remainder(60);
+      final seconds = duration.inSeconds.remainder(60);
 
-    await sendTimerSettings(
-      host: host,
-      hours: hours,
-      minutes: minutes,
-      seconds: seconds,
-      warningPercent: warningPercent,
-    );
+      debugPrint("$duration  $hours $minutes $seconds ");
 
-    await start(host);
+      await sendTimerSettings(
+        host: host,
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+        warningPercent: warningPercent,
+      );
+
+      await start(host);
+    } catch (e) {
+      debugPrint('error: ' + e.toString());
+    }
   }
 
   Future<void> syncTime(String host) async {

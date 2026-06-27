@@ -2,7 +2,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/presentation/controller/device_setup_controller.dart';
+import 'package:timer/features/presentation/controller/device_setup_controller.dart';
 
 @RoutePage()
 class DeviceSetupScreen extends StatefulWidget {
@@ -53,8 +53,6 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
     }
   }
 
-  // ─── Root ────────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -79,9 +77,6 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
     );
   }
 
-  // ─── Buttons ─────────────────────────────────────────────────────────────────
-
-  /// Mobile: full-width stacked column (unchanged)
   Widget _buildMobileButtons() => Column(
     children: [
       Obx(
@@ -104,9 +99,8 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
     ],
   );
 
-  /// Desktop: fixed-width buttons right-aligned; primary action on the right
   Widget _buildDesktopButtons() => Row(
-    mainAxisAlignment: MainAxisAlignment.end,
+    mainAxisAlignment: .end,
     children: [
       SizedBox(
         width: 200,
@@ -133,8 +127,6 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
       ),
     ],
   );
-
-  // ─── Field builders (unchanged) ───────────────────────────────────────────
 
   Obx buildConnection() => Obx(
     () => _Field(
@@ -233,8 +225,6 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
       '${dt.hour < 12 ? 'AM' : 'PM'}';
 }
 
-// ─── Layout shells ────────────────────────────────────────────────────────────
-
 class _MobileBody extends StatelessWidget {
   final Widget identityCard;
   final Widget connectionCard;
@@ -294,19 +284,14 @@ class _DesktopBody extends StatelessWidget {
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 900),
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: space24,
-          vertical: space32,
-        ),
+        padding: const .symmetric(horizontal: space24, vertical: space32),
         children: [
-          // ── Two columns side-by-side ──────────────────────────────────
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
-              // Left — Identity
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: .start,
                   children: [
                     SectionHeader('Identity'),
                     identityCard,
@@ -319,10 +304,10 @@ class _DesktopBody extends StatelessWidget {
                 ),
               ),
               horizontalSpacer20,
-              // Right — Timer Connection
+
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: .start,
                   children: [
                     SectionHeader('Timer Connection'),
                     connectionCard,
@@ -337,15 +322,13 @@ class _DesktopBody extends StatelessWidget {
             ],
           ),
           verticalSpacer32,
-          // ── Right-aligned action buttons ──────────────────────────────
+
           buttons,
         ],
       ),
     ),
   );
 }
-
-// ─── Shared private widgets (unchanged) ──────────────────────────────────────
 
 class _Card extends StatelessWidget {
   final List<Widget> children;
@@ -355,8 +338,8 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
       color: context.cardBackgroundColor,
-      borderRadius: BorderRadius.circular(space6),
-      border: Border.all(color: context.cardBorderColor),
+      borderRadius: .circular(space6),
+      border: .all(color: context.cardBorderColor),
     ),
     child: Column(
       children: children

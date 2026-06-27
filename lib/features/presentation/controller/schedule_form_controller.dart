@@ -1,5 +1,5 @@
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/models/schedule/schedule.dart';
+import 'package:timer/features/models/schedule/schedule.dart';
 
 class ScheduleFormController extends GetxController {
   final Schedule? existing;

@@ -1,4 +1,4 @@
-import 'package:timer/features/splash/models/schedule/schedules.dart';
+import 'package:timer/features/models/schedule/schedules.dart';
 
 abstract class SplashRepository {
   Future<Schedules> getSchedule();

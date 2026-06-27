@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/models/schedule/schedule.dart';
-import 'package:timer/features/splash/presentation/controller/schedule_form_controller.dart';
+import 'package:timer/features/models/schedule/schedule.dart';
+import 'package:timer/features/presentation/controller/schedule_form_controller.dart';
+
+final scheduleFormScreenDelete = 'delete';
 
 @RoutePage()
 class ScheduleFormScreen extends StatefulWidget {
@@ -119,6 +121,18 @@ class _ScheduleFormScreenState extends State<ScheduleFormScreen> {
     }
   }
 
+  Future<void> deleteSchedule() async {
+    context.unfocus();
+    try {
+      context.maybePop(scheduleFormScreenDelete);
+    } on ScheduleFormControllerErrors catch (_) {
+    } on AppExceptions catch (e) {
+      context.showErrorSnackBar(e.message(context));
+    } catch (e) {
+      context.showErrorSnackBar('An error occurred, please retry.');
+    }
+  }
+
   // ─── Root ────────────────────────────────────────────────────────────────────
 
   @override
@@ -135,6 +149,7 @@ class _ScheduleFormScreenState extends State<ScheduleFormScreen> {
             endSection: buildEndSection(),
             warningBox: _buildWarningBox(),
             saveButton: _buildSaveButton(),
+            deleteButton: _buildDeleteBlock(),
           ),
           desktop: _DesktopBody(
             title: buildTitle(),
@@ -143,6 +158,7 @@ class _ScheduleFormScreenState extends State<ScheduleFormScreen> {
             endSection: buildEndSection(),
             warningBox: _buildWarningBox(),
             saveButton: _buildSaveButton(),
+            deleteButton: _buildDeleteBlock(),
           ),
         ),
       ),
@@ -155,6 +171,13 @@ class _ScheduleFormScreenState extends State<ScheduleFormScreen> {
     onPressed: saveSchedule,
     text: controller.isEditMode ? 'Update Block' : 'Save Block',
   );
+  Widget? _buildDeleteBlock() => !controller.isEditMode
+      ? null
+      : AppBtn.from(
+          onPressed: deleteSchedule,
+          text: 'Delete Block',
+          bgColor: destructive600,
+        );
 
   Row buildEndDetailSwitch() {
     return Row(
@@ -421,6 +444,7 @@ class _MobileBody extends StatelessWidget {
   final Widget endSection;
   final Widget warningBox;
   final Widget saveButton;
+  final Widget? deleteButton;
 
   const _MobileBody({
     required this.title,
@@ -429,6 +453,7 @@ class _MobileBody extends StatelessWidget {
     required this.endSection,
     required this.warningBox,
     required this.saveButton,
+    required this.deleteButton,
   });
 
   @override
@@ -451,6 +476,7 @@ class _MobileBody extends StatelessWidget {
         warningBox,
         verticalSpacer24,
         saveButton,
+        if (deleteButton != null) ...[verticalSpacer16, deleteButton!],
       ],
     ),
   );
@@ -463,6 +489,7 @@ class _DesktopBody extends StatelessWidget {
   final Widget endSection;
   final Widget warningBox;
   final Widget saveButton;
+  final Widget? deleteButton;
 
   const _DesktopBody({
     required this.title,
@@ -471,6 +498,7 @@ class _DesktopBody extends StatelessWidget {
     required this.endSection,
     required this.warningBox,
     required this.saveButton,
+    required this.deleteButton,
   });
 
   @override
@@ -520,14 +548,21 @@ class _DesktopBody extends StatelessWidget {
 
             verticalSpacer24,
 
-            // ── Full-width warning ──────────────────────────────────────
             warningBox,
             verticalSpacer24,
 
-            // ── Right-aligned save button ───────────────────────────────
             Align(
-              alignment: Alignment.centerRight,
-              child: SizedBox(width: 220, child: saveButton),
+              alignment: .centerRight,
+              child: Row(
+                mainAxisSize: .min,
+                children: [
+                  saveButton,
+                  if (deleteButton != null) ...[
+                    horizontalSpacer16,
+                    deleteButton!,
+                  ],
+                ],
+              ),
             ),
           ],
         ),

@@ -221,15 +221,12 @@ class AppBtn extends StatelessWidget {
     );
   }
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
-
+ 
   Widget _loadingIndicator(Color txtColor) => SizedBox(
     height: 15,
     width: 15,
     child: CircularProgressIndicator.adaptive(
-      backgroundColor: kIsWeb
-          ? txtColor
-          : Platform.isIOS
+      backgroundColor: kIsWeb || Platform.isIOS || Platform.isMacOS
           ? txtColor
           : Colors.transparent,
       valueColor: AlwaysStoppedAnimation(txtColor),

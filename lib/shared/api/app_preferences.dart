@@ -14,6 +14,7 @@ class AppPreferences {
   static const _deviceIdKey = 'device_id';
   static const _deviceIpKey = 'device_ip';
   static const _deviceLastSeen = 'device_last_seen';
+  static const _shiftAll = 'shift_all';
 
   // ── Setters ───────────────────────────────────────────────────────────────
 
@@ -29,6 +30,9 @@ class AppPreferences {
   static Future setDeviceIp(String value) async =>
       await _preference?.setString(_deviceIpKey, value);
 
+  static Future setShiftAll(bool value) async =>
+      await _preference?.setBool(_shiftAll, value);
+
   static Future setDeviceLastSeen(DateTime value) async =>
       await _preference?.setInt(_deviceLastSeen, value.millisecondsSinceEpoch);
 
@@ -39,6 +43,7 @@ class AppPreferences {
   static String get deviceName => _preference?.getString(_deviceNameKey) ?? '';
   static String get deviceId => _preference?.getString(_deviceIdKey) ?? '';
   static String get deviceIp => _preference?.getString(_deviceIpKey) ?? '';
+  static bool get shiftAll => _preference?.getBool(_shiftAll) ?? true;
   static DateTime? get deviceLastSeen {
     final ms = _preference?.getInt(_deviceLastSeen);
     return ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;

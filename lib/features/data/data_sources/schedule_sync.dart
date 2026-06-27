@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/models/schedule/schedule.dart';
+import 'package:timer/features/models/schedule/schedule.dart';
 
 // ─────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -31,7 +31,7 @@ class SyncPacket {
   final SyncEventType type;
   final List<Schedule>? schedules; // full list for fullSync
   final Schedule? schedule; // single item for insert/modify/delete
-  final String? scheduleId; // id only for delete
+  final int? scheduleId; // id only for delete
   final DateTime sentAt;
 
   SyncPacket({
@@ -64,7 +64,7 @@ class SyncPacket {
       schedule: json['schedule'] != null
           ? Schedule.fromMap(json['schedule'] as Map<String, dynamic>)
           : null,
-      scheduleId: json['scheduleId'] as String?,
+      scheduleId: json['scheduleId'] as int?,
     );
   }
 
@@ -226,7 +226,7 @@ class ScheduleSyncService extends GetxService {
   );
 
   /// A schedule was deleted
-  Future<void> broadcastDelete(String scheduleId) => _broadcast(
+  Future<void> broadcastDelete(int scheduleId) => _broadcast(
     SyncPacket(
       senderId: _senderId,
       type: SyncEventType.scheduleDeleted,
@@ -365,8 +365,7 @@ mixin ScheduleSyncMixin on GetxController {
 
   void syncModify(Schedule schedule) => _syncService.broadcastModify(schedule);
 
-  void syncDelete(String scheduleId) =>
-      _syncService.broadcastDelete(scheduleId);
+  void syncDelete(int scheduleId) => _syncService.broadcastDelete(scheduleId);
 
   void syncFullList() => _syncService.broadcastFullSync(schedules.toList());
 }

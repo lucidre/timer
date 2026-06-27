@@ -81,14 +81,13 @@ class DeviceSetupController extends GetxController {
     isOnline = false;
 
     try {
-      await Future.delayed(2.seconds);
-      debugPrint('http://$ip');
+      await Future.delayed(500.milliseconds);
       final result = await $get('/', host: 'http://$ip').timeout(4.seconds);
 
       isOnline = !result.isError;
 
       if (isOnline) {
-        lastSeen = DateTime.now();
+        lastSeen = .now();
         await AppPreferences.setDeviceLastSeen(lastSeen!);
       }
     } catch (_) {

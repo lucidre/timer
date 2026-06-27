@@ -1,4 +1,4 @@
-import 'package:timer/features/splash/models/schedule/schedules.dart';
+import 'package:timer/features/models/schedule/schedules.dart';
 import 'package:timer/shared/api/app_exceptions.dart';
 
 import '../../domain/repositories/splash_repository.dart';

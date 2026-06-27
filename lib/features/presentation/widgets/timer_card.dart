@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/presentation/controller/dashboard_controller.dart';
-import 'package:timer/features/splash/presentation/widgets/time_listener.dart';
+import 'package:timer/features/presentation/controller/dashboard_controller.dart';
+import 'package:timer/features/presentation/widgets/time_listener.dart';
 
 class TimerCard extends StatefulWidget {
   final String tag;

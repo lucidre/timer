@@ -1,6 +1,6 @@
 import 'package:timer/common_libs.dart';
-import 'package:timer/features/splash/data/repositorites/splash_repository_impl.dart';
-import 'package:timer/features/splash/domain/usecases/splash_service.dart';
+import 'package:timer/features/data/repositorites/splash_repository_impl.dart';
+import 'package:timer/features/domain/usecases/splash_service.dart';
 
 //TODO: LOCALIZE
 final _statusMessages = [

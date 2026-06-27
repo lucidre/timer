@@ -8,7 +8,7 @@ class AppHaptics {
   static bool debugLog = kDebugMode;
 
   static void buttonPress() {
-    lightImpact();
+    // lightImpact();
   }
 
   static Future<void> lightImpact() {

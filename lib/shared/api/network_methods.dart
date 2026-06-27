@@ -29,7 +29,7 @@ void _logRequest(String method, String url, {Map? headers, Object? body}) {
 
 void _logResponse(int statusCode, Object? body) {
   _log('RESPONSE STATUS', statusCode);
-  _log('RESPONSE BODY', body);
+  // _log('RESPONSE BODY', body);
 }
 
 // ─── Headers ──────────────────────────────────────────────────────────────────
